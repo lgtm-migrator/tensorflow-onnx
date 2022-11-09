@@ -1,0 +1,41 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "main", "r0.1", "r0.2", "r0.3", "r0.4", "r1.4", "r1.5", "r1.6", "r1.7", "r1.8", "r1.9", "r1.10", "r1.11", "r1.12", "r1.12.1", "r1.13", "r1.13.0", "revert-1271-apache" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: "42 21 * * 5"
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ python ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          queries: +security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{ matrix.language }}"
